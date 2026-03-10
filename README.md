@@ -36,7 +36,7 @@ Each problem receives one verdict:
 |---------|---------|
 | **OK** | Proof succeeded without adding axioms |
 | **FAIL** | Tactic failed to prove the goal |
-| **CHEATING** | Solution added axioms (detected via axiom count comparison) |
+| **CHEATING** | Solution added axioms (detected via axiom count comparison) or CHEAT_TAC detected |
 | **ERROR** | Runtime exception or compilation error |
 | **TIMEOUT** | Exceeded category timeout (default: 120s - configurable, please let us know your time) |
 
