@@ -1,0 +1,75 @@
+name: Leaderboard Submission
+description: Submit your model's results to the s2n-bignum-bench leaderboard.
+title: "[Submission] "
+labels: ["submission"]
+body:
+  - type: input
+    id: model
+    attributes:
+      label: Model Name
+      description: Name of the model (e.g., "GPT-4o", "Claude Opus 4").
+      placeholder: Model-Name
+    validations:
+      required: true
+
+  - type: input
+    id: model_url
+    attributes:
+      label: Model URL
+      description: Link to the model's page or provider (optional).
+      placeholder: https://...
+    validations:
+      required: false
+
+  - type: input
+    id: submitter
+    attributes:
+      label: Submitter
+      description: Your name or team name.
+      placeholder: Jane Doe
+    validations:
+      required: true
+
+  - type: input
+    id: submitter_url
+    attributes:
+      label: Submitter URL
+      description: Link to your profile or organization (optional).
+      placeholder: https://github.com/username
+    validations:
+      required: false
+
+  - type: dropdown
+    id: badge
+    attributes:
+      label: Model Type
+      description: Is the model open-source or closed-source?
+      options:
+        - open
+        - closed
+    validations:
+      required: true
+
+  - type: textarea
+    id: answers
+    attributes:
+      label: Answers CSV (zipped)
+      description: |
+        **Upload your answers as a `.zip` file** by dragging it into this field. Do NOT paste raw CSV content — this prevents data contamination of answers in public issue threads.
+
+        The zip must contain a single CSV file with the columns:
+        `problem_id, category, query, answer`
+
+        See [GUIDE.md](https://github.com/kings-crown/s2n-bignum-bench/blob/main/GUIDE.md) for details on the expected format.
+      placeholder: Drag and drop your .zip file here.
+    validations:
+      required: true
+
+  - type: textarea
+    id: details
+    attributes:
+      label: Additional Details
+      description: Any additional details about your setup (compute used, prompting strategy, number of attempts, etc.).
+      placeholder: Optional details...
+    validations:
+      required: false

@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>s2n-bignum-bench Leaderboard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #ffffff;
+    --fg: #1a1a1a;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --header-bg: #f8f9fa;
+    --row-hover: #f1f5f9;
+    --accent: #2563eb;
+    --accent-light: #dbeafe;
+    --gold: #fbbf24;
+    --silver: #9ca3af;
+    --bronze: #d97706;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg);
+    color: var(--fg);
+    line-height: 1.5;
+    padding: 0;
+  }
+
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid var(--border);
+  }
+
+  header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  header .subtitle {
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  .header-badges {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+
+  .header-badges a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: opacity 0.15s;
+  }
+
+  .header-badges a:hover { opacity: 0.85; }
+
+  .badge-github {
+    background: #24292e;
+    color: #fff;
+  }
+
+  .badge-paper {
+    background: #7c3aed;
+    color: #fff;
+  }
+
+  .badge-submit {
+    background: #16a34a;
+    color: #fff;
+  }
+
+  .stats-bar {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 1rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  .stats-bar .stat {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .stats-bar .stat-value {
+    font-weight: 600;
+    color: var(--fg);
+  }
+
+  .controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .filter-group {
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  .filter-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    padding: 0.35rem 0.75rem;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--muted);
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.15s;
+  }
+
+  .filter-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .filter-btn.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+
+  .filter-btn.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .control-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .control-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.78rem;
+    white-space: nowrap;
+  }
+
+  thead {
+    background: var(--header-bg);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+
+  th {
+    padding: 0.7rem 0.8rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    border-bottom: 2px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+  }
+
+  th:hover { color: var(--accent); }
+
+  th .sort-arrow {
+    margin-left: 0.3rem;
+    font-size: 0.65rem;
+    opacity: 0.4;
+  }
+
+  th.sorted-asc .sort-arrow,
+  th.sorted-desc .sort-arrow {
+    opacity: 1;
+    color: var(--accent);
+  }
+
+  td {
+    padding: 0.6rem 0.8rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  tr:hover td { background: var(--row-hover); }
+  tr:last-child td { border-bottom: none; }
+
+  .rank { text-align: center; font-weight: 600; }
+  .medal { font-size: 1rem; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .pct { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
+
+  .model-name {
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  .badge-open { color: #22c55e; }
+  .badge-partial { color: #3b82f6; }
+  .badge-closed { color: var(--muted); }
+
+  .bar-cell {
+    min-width: 100px;
+  }
+
+  .bar-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .bar-bg {
+    flex: 1;
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+  }
+
+  .bar-fill.pass-k {
+    background: #8b5cf6;
+  }
+
+  .bar-label {
+    font-size: 0.7rem;
+    font-variant-numeric: tabular-nums;
+    min-width: 3.5rem;
+    text-align: right;
+  }
+
+  .no-results {
+    text-align: center;
+    padding: 2rem;
+    color: var(--muted);
+    font-size: 0.8rem;
+    font-style: italic;
+  }
+
+  footer {
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  footer a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  footer a:hover { text-decoration: underline; }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 900px) {
+    .container { padding: 1rem; }
+    header h1 { font-size: 1.3rem; }
+    .stats-bar { flex-wrap: wrap; gap: 1rem; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>s2n-bignum-bench Leaderboard</h1>
+    <div class="subtitle">A Practical Benchmark for Evaluating Low-Level Code Reasoning of LLMs</div>
+    <div class="header-badges">
+      <a href="https://github.com/kings-crown/s2n-bignum-bench" target="_blank" class="badge-github">
+        <svg height="14" width="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        GitHub
+      </a>
+      <a href="" target="_blank" class="badge-paper">Paper</a>
+      <a href="https://github.com/kings-crown/s2n-bignum-leaderboard/issues/new?template=leaderboard-submission.yml" target="_blank" class="badge-submit">Submit</a>
+    </div>
+    <div class="stats-bar" id="stats-bar"></div>
+  </header>
+
+  <div class="controls">
+    <div style="display:flex; flex-direction:column; gap:0.5rem;">
+      <div class="control-row">
+        <span class="control-label">Metric:</span>
+        <div class="filter-group" id="k-group">
+          <button class="filter-btn active" data-k="1">Pass@1</button>
+        </div>
+      </div>
+      <div class="control-row">
+        <span class="control-label">Category:</span>
+        <div class="filter-group" id="filter-group">
+          <button class="filter-btn active" data-filter="all">All</button>
+          <button class="filter-btn" data-filter="functional_correctness_arm">ARM FC</button>
+          <button class="filter-btn" data-filter="functional_correctness_x86">x86 FC</button>
+          <button class="filter-btn" data-filter="program_state">Prog State</button>
+          <button class="filter-btn" data-filter="bit_vector">Bit Vector</button>
+          <button class="filter-btn" data-filter="generic">Generic</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table id="leaderboard">
+      <thead>
+        <tr id="header-row"></tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <footer>
+    <p>
+      <strong>s2n-bignum-bench</strong> &mdash; 2,284 HOL Light proof problems from
+      <a href="https://github.com/awslabs/s2n-bignum" target="_blank">s2n-bignum</a>
+    </p>
+    <p style="margin-top:0.4rem;">
+      <a href="https://github.com/kings-crown/s2n-bignum-bench" target="_blank">Benchmark Repo</a>
+      &middot;
+      <a href="https://github.com/kings-crown/s2n-bignum-bench/blob/main/GUIDE.md" target="_blank">Guide</a>
+    </p>
+    <p style="margin-top:0.6rem; font-size:0.75rem; color:var(--muted);">
+      Leaderboard template adapted from
+      <a href="https://evalplus.github.io/leaderboard.html" target="_blank">EvalPlus</a>
+      and
+      <a href="https://trishullab.github.io/PutnamBench/leaderboard.html" target="_blank">PutnamBench</a>.
+    </p>
+  </footer>
+</div>
+
+<script>
+const CATEGORY_LABELS = {
+  functional_correctness_arm: "ARM FC",
+  functional_correctness_x86: "x86 FC",
+  program_state: "Prog State",
+  bit_vector: "Bit Vector",
+  generic: "Generic",
+};
+
+const COLUMNS_BASE = [
+  { key: "rank",      label: "#",         type: "rank" },
+  { key: "model",     label: "Model",     type: "text" },
+  { key: "submitter", label: "Submitter",  type: "text" },
+  { key: "date",      label: "Date",      type: "text" },
+  { key: "badge",     label: "Badge",     type: "badge" },
+  { key: "compute",   label: "Compute",   type: "text" },
+  { key: "solved",    label: "Solved",    type: "num" },
+  { key: "pct",       label: "% Solved",  type: "bar" },
+  { key: "cat_functional_correctness_arm", label: "ARM FC",     type: "num" },
+  { key: "cat_functional_correctness_x86", label: "x86 FC",     type: "num" },
+  { key: "cat_program_state",              label: "Prog State",  type: "num" },
+  { key: "cat_bit_vector",                 label: "Bit Vector",  type: "num" },
+  { key: "cat_generic",                    label: "Generic",     type: "num" },
+];
+
+let DATA = null;
+let currentFilter = "all";
+let currentK = 1;       // 1 = pass@1 view, >1 = pass@k view
+let sortCol = "solved";
+let sortAsc = false;
+
+// Inline fallback data (used when opened as file:// where fetch fails).
+const INLINE_DATA = {"benchmark":"s2n-bignum-bench","total_problems":2284,"categories":{"functional_correctness_arm":437,"functional_correctness_x86":422,"program_state":552,"bit_vector":311,"generic":562},"entries":[{"model":"Codex-5.3-Medium-Effort","model_url":"","submitter":"Balaji Rao","submitter_url":"https://github.com/kings-crown","date":"2026-03-09","badge":"closed","compute":"","total_problems":2284,"solved":101,"categories":{"bit_vector":{"attempted":311,"solved":26},"functional_correctness_arm":{"attempted":437,"solved":0},"functional_correctness_x86":{"attempted":422,"solved":0},"generic":{"attempted":562,"solved":59},"program_state":{"attempted":552,"solved":16}},"pass_at_k":null}]};
+
+async function loadData() {
+  try {
+    const resp = await fetch("results.json");
+    if (!resp.ok) throw new Error(resp.status);
+    DATA = await resp.json();
+  } catch (e) {
+    DATA = INLINE_DATA;
+  }
+  renderStats();
+  buildKButtons();
+  buildHeader();
+  renderTable();
+}
+
+function renderStats() {
+  const bar = document.getElementById("stats-bar");
+  const cats = DATA.categories || {};
+  let html = `<span class="stat">Total Problems: <span class="stat-value">${DATA.total_problems.toLocaleString()}</span></span>`;
+  for (const [cat, count] of Object.entries(cats)) {
+    html += `<span class="stat">${CATEGORY_LABELS[cat] || cat}: <span class="stat-value">${count}</span></span>`;
+  }
+  html += `<span class="stat">Submissions: <span class="stat-value">${(DATA.entries || []).length}</span></span>`;
+  bar.innerHTML = html;
+}
+
+// Discover which k values exist across all entries
+function getAvailableKValues() {
+  const kSet = new Set([1]); // pass@1 always available
+  for (const e of (DATA.entries || [])) {
+    if (e.pass_at_k && e.pass_at_k.k) {
+      kSet.add(e.pass_at_k.k);
+    }
+  }
+  return Array.from(kSet).sort((a, b) => a - b);
+}
+
+function buildKButtons() {
+  const group = document.getElementById("k-group");
+  const kValues = getAvailableKValues();
+
+  group.innerHTML = kValues.map(k => {
+    const active = k === currentK ? "active" : "";
+    return `<button class="filter-btn ${active}" data-k="${k}">Pass@${k}</button>`;
+  }).join("");
+
+  group.addEventListener("click", (e) => {
+    if (!e.target.classList.contains("filter-btn")) return;
+    group.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+    e.target.classList.add("active");
+    currentK = parseInt(e.target.dataset.k, 10);
+    buildHeader();
+    renderTable();
+  });
+}
+
+function buildHeader() {
+  const row = document.getElementById("header-row");
+  const visibleCols = getVisibleColumns();
+  row.innerHTML = visibleCols.map(col => {
+    const cls = col.key === sortCol ? (sortAsc ? "sorted-asc" : "sorted-desc") : "";
+    const arrow = col.key === sortCol ? (sortAsc ? "\u25B2" : "\u25BC") : "\u25B4";
+    return `<th class="${cls}" data-col="${col.key}">${col.label} <span class="sort-arrow">${arrow}</span></th>`;
+  }).join("");
+
+  row.querySelectorAll("th").forEach(th => {
+    th.addEventListener("click", () => {
+      const col = th.dataset.col;
+      if (sortCol === col) { sortAsc = !sortAsc; }
+      else { sortCol = col; sortAsc = false; }
+      buildHeader();
+      renderTable();
+    });
+  });
+}
+
+function getVisibleColumns() {
+  let cols = COLUMNS_BASE;
+  if (currentFilter !== "all") {
+    cols = cols.filter(c => {
+      if (c.key.startsWith("cat_")) return c.key === "cat_" + currentFilter;
+      return true;
+    });
+  }
+  return cols;
+}
+
+function prepareRows() {
+  const entries = DATA.entries || [];
+  const isPassK = currentK > 1;
+
+  return entries.map(e => {
+    const cats = e.categories || {};
+    const pak = e.pass_at_k || null;
+
+    let solved, pct;
+    let catSolved = {};
+
+    if (isPassK && pak && pak.k === currentK) {
+      // Use pass@k union-solved numbers
+      solved = pak.solved || 0;
+      pct = DATA.total_problems > 0 ? (solved / DATA.total_problems * 100) : 0;
+      const pakCats = pak.categories || {};
+      for (const cat of Object.keys(CATEGORY_LABELS)) {
+        catSolved[cat] = (pakCats[cat] && pakCats[cat].solved) || 0;
+      }
+    } else if (isPassK) {
+      // This entry doesn't have results for this k — mark as null
+      return null;
+    } else {
+      // pass@1 view: use base numbers
+      solved = e.solved || 0;
+      pct = DATA.total_problems > 0 ? (solved / DATA.total_problems * 100) : 0;
+      for (const cat of Object.keys(CATEGORY_LABELS)) {
+        catSolved[cat] = (cats[cat] && cats[cat].solved) || 0;
+      }
+    }
+
+    const row = {
+      model: e.model || "",
+      submitter: e.submitter || "",
+      date: e.date || "",
+      badge: e.badge || "",
+      compute: e.compute || "",
+      solved: solved,
+      total_problems: e.total_problems || 0,
+      pct: pct,
+      model_url: e.model_url || null,
+      submitter_url: e.submitter_url || null,
+    };
+    for (const cat of Object.keys(CATEGORY_LABELS)) {
+      row["cat_" + cat] = catSolved[cat] || 0;
+    }
+    return row;
+  }).filter(r => r !== null);
+}
+
+function sortRows(rows) {
+  const col = sortCol;
+  rows.sort((a, b) => {
+    let va = a[col], vb = b[col];
+    if (typeof va === "string") va = va.toLowerCase();
+    if (typeof vb === "string") vb = vb.toLowerCase();
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+}
+
+function medal(rank) {
+  if (rank === 1) return '<span class="medal">&#x1F947;</span>';
+  if (rank === 2) return '<span class="medal">&#x1F948;</span>';
+  if (rank === 3) return '<span class="medal">&#x1F949;</span>';
+  return rank;
+}
+
+function badgeHtml(badge) {
+  if (badge === "open") return '<span class="badge-open" title="Fully open-source">&#x1F49A;</span>';
+  if (badge === "partial") return '<span class="badge-partial" title="Partially open-source">&#x1F499;</span>';
+  return '<span class="badge-closed" title="Closed-source">&mdash;</span>';
+}
+
+function barHtml(pct, isPassK) {
+  const cls = isPassK ? "bar-fill pass-k" : "bar-fill";
+  return `<div class="bar-container">
+    <div class="bar-bg"><div class="${cls}" style="width:${Math.min(pct, 100)}%"></div></div>
+    <span class="bar-label">${pct.toFixed(1)}%</span>
+  </div>`;
+}
+
+function renderTable() {
+  const tbody = document.getElementById("tbody");
+  let rows = prepareRows();
+  sortRows(rows);
+
+  const visibleCols = getVisibleColumns();
+  const isPassK = currentK > 1;
+
+  if (rows.length === 0) {
+    const msg = isPassK
+      ? `No submissions with Pass@${currentK} results.`
+      : "No submissions yet.";
+    tbody.innerHTML = `<tr><td colspan="${visibleCols.length}" class="empty-state">${msg}</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rows.map((row, i) => {
+    const rank = i + 1;
+    return "<tr>" + visibleCols.map(col => {
+      switch (col.key) {
+        case "rank":
+          return `<td class="rank">${medal(rank)}</td>`;
+        case "model":
+          const name = row.model_url
+            ? `<a href="${row.model_url}" class="model-name" target="_blank">${row.model}</a>`
+            : `<span class="model-name">${row.model}</span>`;
+          return `<td>${name}</td>`;
+        case "submitter":
+          const sub = row.submitter_url
+            ? `<a href="${row.submitter_url}" target="_blank">${row.submitter}</a>`
+            : row.submitter;
+          return `<td>${sub}</td>`;
+        case "badge":
+          return `<td>${badgeHtml(row.badge)}</td>`;
+        case "pct":
+          return `<td class="bar-cell">${barHtml(row.pct, isPassK)}</td>`;
+        case "solved":
+          return `<td class="num">${row.solved} / ${DATA.total_problems}</td>`;
+        default:
+          if (col.key.startsWith("cat_")) {
+            const cat = col.key.replace("cat_", "");
+            return `<td class="num">${row["cat_" + cat] || 0}</td>`;
+          }
+          return `<td>${row[col.key]}</td>`;
+      }
+    }).join("") + "</tr>";
+  }).join("");
+}
+
+// Category filter buttons
+document.getElementById("filter-group").addEventListener("click", (e) => {
+  if (!e.target.classList.contains("filter-btn")) return;
+  document.querySelectorAll("#filter-group .filter-btn").forEach(b => b.classList.remove("active"));
+  e.target.classList.add("active");
+  currentFilter = e.target.dataset.filter;
+  buildHeader();
+  renderTable();
+});
+
+loadData();
+</script>
+</body>
+</html>
