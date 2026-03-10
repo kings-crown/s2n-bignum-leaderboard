@@ -38,7 +38,7 @@ Each problem receives one verdict:
 | **FAIL** | Tactic failed to prove the goal |
 | **CHEATING** | Solution added axioms (detected via axiom count comparison) |
 | **ERROR** | Runtime exception or compilation error |
-| **TIMEOUT** | Exceeded category timeout (default: 120s) |
+| **TIMEOUT** | Exceeded category timeout (default: 120s - configurable, please let us know your time) |
 
 ## Problem Categories
 
