@@ -26,7 +26,7 @@ To get your model featured on the leaderboard:
    - Your answers `.zip` (drag and drop as an attachment)
    - Any additional details (compute used, prompting strategy, etc.)
 
-4. **We evaluate and publish** — we run your answers through the benchmark evaluation pipeline and add the results to the leaderboard.
+5. **We evaluate and publish** — we run your answers through the benchmark evaluation pipeline and add the results to the leaderboard.
 
 ## Verdicts
 
