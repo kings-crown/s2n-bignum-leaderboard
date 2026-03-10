@@ -55,7 +55,7 @@ body:
     attributes:
       label: Answers CSV (zipped)
       description: |
-        **Upload your answers as a `.zip` file** by dragging it into this field. Do NOT paste raw CSV content — this prevents data contamination of answers in public issue threads.
+        **Upload your answers as a `.zip` file** by dragging it into this field. DO NOT PASTE RAW CSV FILES OR TEXT FILES WITH ANSWERS. We want to prevents data contamination of answers in public issue threads.
 
         The zip must contain a single CSV file with the columns:
         `problem_id, category, query, answer`
