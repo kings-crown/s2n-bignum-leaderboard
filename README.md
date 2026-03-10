@@ -4,7 +4,6 @@ Leaderboard for the [s2n-bignum-bench](https://github.com/kings-crown/s2n-bignum
 
 ## Viewing the Leaderboard
 [Leaderboard Webpage](https://kings-crown.github.io/s2n-bignum-leaderboard/)
-```
 
 ## Submitting to the Leaderboard
 
