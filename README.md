@@ -46,7 +46,7 @@ Each problem receives one verdict:
 |----------|-------|-------------|
 | `generic` | 562 | General HOL Light lemmas |
 | `program_state` | 552 | Program state properties |
-| `functional_correctness_arm` | 437 | ARM64 functional correctness |
+| `functional_correctness_arm` | 437 | ARM functional correctness |
 | `functional_correctness_x86` | 422 | x86-64 functional correctness |
 | `bit_vector` | 311 | Bit vector operations |
 
