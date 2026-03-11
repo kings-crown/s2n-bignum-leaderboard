@@ -308,10 +308,57 @@
     font-size: 0.85rem;
   }
 
+  /* Tablet */
   @media (max-width: 900px) {
     .container { padding: 1rem; }
     header h1 { font-size: 1.3rem; }
-    .stats-bar { flex-wrap: wrap; gap: 1rem; }
+    .stats-bar { flex-wrap: wrap; gap: 0.75rem; justify-content: center; }
+    .controls { flex-direction: column; align-items: stretch; }
+    .filter-group { flex-wrap: wrap; }
+    .filter-btn { padding: 0.45rem 0.85rem; font-size: 0.75rem; }
+  }
+
+  /* Phone */
+  @media (max-width: 540px) {
+    .container { padding: 0.75rem; }
+    header { margin-bottom: 1.5rem; padding-bottom: 1rem; }
+    header h1 { font-size: 1.1rem; }
+    header .subtitle { font-size: 0.75rem; }
+
+    .header-badges { flex-wrap: wrap; justify-content: center; }
+    .header-badges a { padding: 0.4rem 0.7rem; font-size: 0.65rem; }
+
+    .stats-bar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      font-size: 0.72rem;
+      text-align: center;
+    }
+
+    .controls { gap: 0.75rem; }
+    .control-row { flex-wrap: wrap; }
+    .filter-group { flex-wrap: wrap; gap: 0.35rem; }
+    .filter-btn {
+      padding: 0.5rem 0.9rem;
+      font-size: 0.75rem;
+      min-height: 2.2rem;          /* touch-friendly tap target */
+    }
+
+    table { font-size: 0.72rem; }
+    th { padding: 0.5rem 0.6rem; font-size: 0.65rem; }
+    td { padding: 0.5rem 0.6rem; }
+
+    .bar-cell { min-width: 80px; }
+    .bar-label { font-size: 0.65rem; min-width: 2.8rem; }
+
+    footer { font-size: 0.68rem; margin-top: 1.5rem; padding-top: 1rem; }
+
+    /* Let table text wrap so it doesn't force a huge scroll */
+    table { white-space: normal; }
+
+    /* Hide lower-priority columns on phones to reduce scroll */
+    .hide-mobile { display: none; }
   }
 </style>
 </head>
@@ -393,10 +440,10 @@ const CATEGORY_LABELS = {
 const COLUMNS_BASE = [
   { key: "rank",      label: "#",         type: "rank" },
   { key: "model",     label: "Model",     type: "text" },
-  { key: "submitter", label: "Submitter",  type: "text" },
-  { key: "date",      label: "Date",      type: "text" },
-  { key: "badge",     label: "Badge",     type: "badge" },
-  { key: "compute",   label: "Compute",   type: "text" },
+  { key: "submitter", label: "Submitter",  type: "text", hideMobile: true },
+  { key: "date",      label: "Date",      type: "text", hideMobile: true },
+  { key: "badge",     label: "Badge",     type: "badge", hideMobile: true },
+  { key: "compute",   label: "Compute",   type: "text", hideMobile: true },
   { key: "solved",    label: "Solved",    type: "num" },
   { key: "pct",       label: "% Solved",  type: "bar" },
   { key: "cat_functional_correctness_arm", label: "ARM FC",     type: "num" },
@@ -474,9 +521,10 @@ function buildHeader() {
   const row = document.getElementById("header-row");
   const visibleCols = getVisibleColumns();
   row.innerHTML = visibleCols.map(col => {
-    const cls = col.key === sortCol ? (sortAsc ? "sorted-asc" : "sorted-desc") : "";
+    const sortCls = col.key === sortCol ? (sortAsc ? "sorted-asc" : "sorted-desc") : "";
+    const hideCls = col.hideMobile ? " hide-mobile" : "";
     const arrow = col.key === sortCol ? (sortAsc ? "\u25B2" : "\u25BC") : "\u25B4";
-    return `<th class="${cls}" data-col="${col.key}">${col.label} <span class="sort-arrow">${arrow}</span></th>`;
+    return `<th class="${sortCls}${hideCls}" data-col="${col.key}">${col.label} <span class="sort-arrow">${arrow}</span></th>`;
   }).join("");
 
   row.querySelectorAll("th").forEach(th => {
@@ -603,31 +651,32 @@ function renderTable() {
   tbody.innerHTML = rows.map((row, i) => {
     const rank = i + 1;
     return "<tr>" + visibleCols.map(col => {
+      const hm = col.hideMobile ? " hide-mobile" : "";
       switch (col.key) {
         case "rank":
-          return `<td class="rank">${medal(rank)}</td>`;
+          return `<td class="rank${hm}">${medal(rank)}</td>`;
         case "model":
           const name = row.model_url
             ? `<a href="${row.model_url}" class="model-name" target="_blank">${row.model}</a>`
             : `<span class="model-name">${row.model}</span>`;
-          return `<td>${name}</td>`;
+          return `<td class="${hm}">${name}</td>`;
         case "submitter":
           const sub = row.submitter_url
             ? `<a href="${row.submitter_url}" target="_blank">${row.submitter}</a>`
             : row.submitter;
-          return `<td>${sub}</td>`;
+          return `<td class="${hm}">${sub}</td>`;
         case "badge":
-          return `<td>${badgeHtml(row.badge)}</td>`;
+          return `<td class="${hm}">${badgeHtml(row.badge)}</td>`;
         case "pct":
-          return `<td class="bar-cell">${barHtml(row.pct, isPassK)}</td>`;
+          return `<td class="bar-cell${hm}">${barHtml(row.pct, isPassK)}</td>`;
         case "solved":
-          return `<td class="num">${row.solved} / ${DATA.total_problems}</td>`;
+          return `<td class="num${hm}">${row.solved} / ${DATA.total_problems}</td>`;
         default:
           if (col.key.startsWith("cat_")) {
             const cat = col.key.replace("cat_", "");
-            return `<td class="num">${row["cat_" + cat] || 0}</td>`;
+            return `<td class="num${hm}">${row["cat_" + cat] || 0}</td>`;
           }
-          return `<td>${row[col.key]}</td>`;
+          return `<td class="${hm}">${row[col.key]}</td>`;
       }
     }).join("") + "</tr>";
   }).join("");
