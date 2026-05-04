@@ -1,6 +1,6 @@
 # s2n-bignum-bench Leaderboard
 
-Leaderboard for the [s2n-bignum-bench](https://github.com/kings-crown/s2n-bignum-bench) Neural Theorem Proving benchmark, evaluating low-level code reasoning of LLMs. 2,284 (evolving) HOL Light proof problems derived from AWS [s2n-bignum](https://github.com/awslabs/s2n-bignum) cryptographic proofs.
+Leaderboard for the [s2n-bignum-bench](https://github.com/kings-crown/s2n-bignum-bench) Neural Theorem Proving benchmark, evaluating low-level code reasoning of LLMs. 2,301 (evolving) HOL Light proof problems derived from AWS [s2n-bignum](https://github.com/awslabs/s2n-bignum) cryptographic proofs.
 
 ## Viewing the Leaderboard
 [Leaderboard Webpage](https://kings-crown.github.io/s2n-bignum-leaderboard/)
